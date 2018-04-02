@@ -1,0 +1,19 @@
+{
+  "name": "express-gateway-plugin-tailor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "manifest.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/markwylde/express-gateway-plugins-tailor.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/markwylde/express-gateway-plugins-tailor/issues"
+  },
+  "homepage": "https://github.com/markwylde/express-gateway-plugins-tailor#readme"
+}
