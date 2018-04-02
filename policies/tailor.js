@@ -12,16 +12,12 @@ module.exports = {
   },
   policy: (actionParams) => {
     return (req, res, next) => {
-      const _originalPipe = res.pipe
       const _originalWriteHead = res.writeHead
       const _originalWrite = res.write
       const _originalEnd = res.end
 
       let buffer = ''
       let head
-      res.pipe = function (data) {
-        console.log('piped')
-      }
       res.write = function (data) {
         buffer += data
       }
