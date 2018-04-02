@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/markwylde/express-gateway-plugins-tailor/issues"
   },
-  "homepage": "https://github.com/markwylde/express-gateway-plugins-tailor#readme"
+  "homepage": "https://github.com/markwylde/express-gateway-plugins-tailor#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "node-tailor": "^3.6.0"
+  }
 }

@@ -1,3 +1,6 @@
+const Tailor = require('node-tailor')
+const axios = require('axios')
+
 module.exports = {
   name: 'tailor',
   schema: {
@@ -25,15 +28,45 @@ module.exports = {
         head = data
       }
       res.end = function (data) {
-        buffer = 'INJECTED' + buffer
+        res.write = _originalWrite
+        res.writeHead = _originalWriteHead
 
-        res.removeHeader('content-length')
-        res.removeHeader('x-gateway-layout')
-        res.removeHeader('x-powered-by')
+        const tailor = new Tailor({
+          fetchTemplate: async function (request, parseTemplate) {
+            res.removeHeader('content-length')
+            res.removeHeader('x-gateway-layout')
+            res.removeHeader('x-powered-by')
+            //const layout = await axios(actionParams.compositionUrl)
+            const layout = `
+              <html>
+                <head>
+                  <script type="slot" name="head"></script>
+                </head>
 
-        _originalWriteHead.call(res, head)
-        _originalWrite.call(res, buffer)
-        _originalEnd.call(res)
+                <body>
+                  <div class="breadcrumbs">
+                    <script type="slot" name="breadcrumbs"></script>
+                  </div>
+
+                  <div class="content">
+                    <script type="slot" name="body"></script>
+                  </div>
+                </body>
+              </html>
+            `.trim()
+            return parseTemplate(layout, buffer)
+          }
+        })
+
+        tailor.on('error', function (err) {
+          console.log(err)
+          res.status(head).send(buffer)
+        })
+        tailor.on('end', function () {
+          res.end = _originalEnd
+        })
+
+        tailor.requestHandler(req, res)
       }
       next()
     }
