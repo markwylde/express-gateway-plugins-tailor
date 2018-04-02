@@ -31,42 +31,49 @@ module.exports = {
         res.write = _originalWrite
         res.writeHead = _originalWriteHead
 
-        const tailor = new Tailor({
-          fetchTemplate: async function (request, parseTemplate) {
-            res.removeHeader('content-length')
-            res.removeHeader('x-gateway-layout')
-            res.removeHeader('x-powered-by')
-            //const layout = await axios(actionParams.compositionUrl)
-            const layout = `
-              <html>
-                <head>
-                  <script type="slot" name="head"></script>
-                </head>
-
-                <body>
-                  <div class="breadcrumbs">
-                    <script type="slot" name="breadcrumbs"></script>
-                  </div>
-
-                  <div class="content">
-                    <script type="slot" name="body"></script>
-                  </div>
-                </body>
-              </html>
-            `.trim()
-            return parseTemplate(layout, buffer)
-          }
-        })
-
-        tailor.on('error', function (err) {
-          console.log(err)
-          res.status(head).send(buffer)
-        })
-        tailor.on('end', function () {
+        if (res._headers['location']) {
+          res.status(head)
+          res.location(res._headers['location'])
           res.end = _originalEnd
-        })
+          res.end()
+        } else {
+          const tailor = new Tailor({
+            fetchTemplate: async function (request, parseTemplate) {
+              res.removeHeader('content-length')
+              res.removeHeader('x-gateway-layout')
+              res.removeHeader('x-powered-by')
+              //const layout = await axios(actionParams.compositionUrl)
+              const layout = `
+                <html>
+                  <head>
+                    <script type="slot" name="head"></script>
+                  </head>
 
-        tailor.requestHandler(req, res)
+                  <body>
+                    <div class="breadcrumbs">
+                      <script type="slot" name="breadcrumbs"></script>
+                    </div>
+
+                    <div class="content">
+                      <script type="slot" name="body"></script>
+                    </div>
+                  </body>
+                </html>
+              `.trim()
+              return parseTemplate(layout, buffer)
+            }
+          })
+
+          tailor.on('error', function (err) {
+            console.log(err)
+            res.status(head).send(buffer)
+          })
+          tailor.on('end', function () {
+            res.end = _originalEnd
+          })
+
+          tailor.requestHandler(req, res)
+        }
       }
       next()
     }
